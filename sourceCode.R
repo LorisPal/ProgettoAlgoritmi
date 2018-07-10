@@ -3,7 +3,7 @@ graficoRc <-
     "graficoRc",
     fields = list(
       nodo = "vector",
-      arco = "dataframe",
+      arco = "data.frame",
       trovato = "logical"
     ),
     methods = list(
