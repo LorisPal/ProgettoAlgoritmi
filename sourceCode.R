@@ -84,10 +84,7 @@ graficoRc <-
       },
       
       buildMatrix = function() {
-        matrice <<- matrix(, length(nodo), length(nodo))
-        rownames(matrice) <<- nodo
-        colnames(matrice) <<- nodo
-        print(matrice)
+        
       }
     )
   )
