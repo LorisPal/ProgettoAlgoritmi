@@ -3,7 +3,7 @@ graficoRc <-
     "graficoRc",
     fields = list(
       nodo = "vector",
-      arco = "matrix",
+      arco = "dataframe",
       trovato = "logical"
     ),
     methods = list(
@@ -13,38 +13,61 @@ graficoRc <-
           if (node == nodo[[i]]) {
             trovato <<- TRUE
             break
-            
           }
         }
         if (trovato) {
-          print("Nodo trovato: nodo non aggiunto")
+          message("Nodo trovato: ", node, " non aggiunto")
+          message("Matrice di adiacenza: non aggiornata")
         }
         else {
-          print("Nodo non trovato: nodo aggiunto")
+          message("Nodo non trovato: ",node, " aggiunto")
+          message("Matrice di adiacenza: aggiornata")
         }
       },
       
       addNode = function(x) {
         if (length(nodo) < 1) {
           nodo <<- c(nodo, x)
+          message("Nodo non trovato: ",x, " aggiunto")
           
         }
         else{
           searchNode(x)
           if (!trovato) {
             nodo <<- c(nodo, x)
+            arco <<-
+              matrix(, length(nodo), length(nodo))
+            rownames(arco) <<- (nodo)
+            colnames(arco) <<- (nodo)
           }
         }
       },
       
-      addArco = function(x, nodoP, nodoA){
-        arco <<- matrix(0, length(nodo), length(nodo))
-        rownames(arco) <<- nodo
-        colnames(arco) <<- nodo
+      searchArch = function(y, NodeP, NodeA) {
+        trovato <<- FALSE
         for (j in 1:length(nodo)) {
           for (i in 1:length(nodo)) {
-            if(nodoP==nodo[[i]] && nodoA==nodo[[j]]){
-            arco[[i,j]] <<- x
+            if (isTRUE(NodeP == nodo[[i]] && NodeA == nodo[[j]] && y == arco[[i, j]])) {
+              trovato <<- TRUE
+            }
+          }
+        }
+        if (trovato) {
+          message("Arco trovato: non aggiunto")
+          message("Matrice di adiacenza: non aggiornata")
+        }
+        else {
+          message("Arco non trovato: aggiunto")
+          message("Matrice di adiacenza: aggiornata")
+        }
+      },
+      
+      addArco = function(x, nodoP, nodoA) {
+        searchArch(x, nodoP, nodoA)
+        for (j in 1:length(nodo)) {
+          for (i in 1:length(nodo)) {
+            if (nodoP == nodo[[i]] && nodoA == nodo[[j]]) {
+              arco[[i, j]] <<- x
             }
           }
         }
