@@ -4,6 +4,7 @@ graficoRc <-
     fields = list(
       nodo = "vector",
       arco = "data.frame",
+      matrice = "matrix",
       trovato = "logical"
     ),
     methods = list(
@@ -20,7 +21,7 @@ graficoRc <-
           message("Matrice di adiacenza: non aggiornata")
         }
         else {
-          message("Nodo non trovato: ",node, " aggiunto")
+          message("Nodo non trovato: ", node, " aggiunto")
           message("Matrice di adiacenza: aggiornata")
         }
       },
@@ -28,50 +29,65 @@ graficoRc <-
       addNode = function(x) {
         if (length(nodo) < 1) {
           nodo <<- c(nodo, x)
-          message("Nodo non trovato: ",x, " aggiunto")
+          message("Nodo non trovato: ", x, " aggiunto")
           
         }
         else{
           searchNode(x)
           if (!trovato) {
             nodo <<- c(nodo, x)
-            arco <<-
-              matrix(, length(nodo), length(nodo))
-            rownames(arco) <<- (nodo)
-            colnames(arco) <<- (nodo)
           }
         }
       },
       
       searchArch = function(y, NodeP, NodeA) {
         trovato <<- FALSE
-        for (j in 1:length(nodo)) {
-          for (i in 1:length(nodo)) {
-            if (isTRUE(NodeP == nodo[[i]] && NodeA == nodo[[j]] && y == arco[[i, j]])) {
-              trovato <<- TRUE
-            }
+        for (i in 1:nrow(arco)) {
+          if (isTRUE(y == arco[[i, "peso"]] &&
+                     NodeP == arco[[i, "Partenza"]] &&
+                     NodeA == arco[[i, "Arrivo"]])) {
+            trovato <<- TRUE
+            break
           }
         }
         if (trovato) {
-          message("Arco trovato: non aggiunto")
+          message("Arco trovato: ", y, NodeP, NodeA, " non aggiunto")
           message("Matrice di adiacenza: non aggiornata")
         }
         else {
-          message("Arco non trovato: aggiunto")
+          message("Arco non trovato: ", y, NodeP, NodeA, " aggiunto")
           message("Matrice di adiacenza: aggiornata")
         }
       },
       
       addArco = function(x, nodoP, nodoA) {
         searchArch(x, nodoP, nodoA)
-        for (j in 1:length(nodo)) {
-          for (i in 1:length(nodo)) {
-            if (nodoP == nodo[[i]] && nodoA == nodo[[j]]) {
-              arco[[i, j]] <<- x
-            }
+        if (length(arco) < 1) {
+          newRow <-
+            data.frame(peso = x,
+                       Partenza = nodoP,
+                       Arrivo = nodoA)
+          arco <<- rbind(arco, newRow)
+          message("Arco non trovato: ", x, nodoP, nodoA, " aggiunto")
+          
+        }
+        else{
+          searchArch(x, nodoP, nodoA)
+          if (!trovato) {
+            newRow <-
+              data.frame(peso = x,
+                         Partenza = nodoP,
+                         Arrivo = nodoA)
+            arco <<- rbind(arco, newRow)
           }
         }
-        print(arco)
+      },
+      
+      buildMatrix = function() {
+        matrice <<- matrix(, length(nodo), length(nodo))
+        rownames(matrice) <<- nodo
+        colnames(matrice) <<- nodo
+        print(matrice)
       }
     )
   )
