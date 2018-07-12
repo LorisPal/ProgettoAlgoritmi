@@ -5,10 +5,15 @@ graficoRc <-
       nodo = "vector",
       arco = "data.frame",
       matrice = "matrix",
-      trovato = "logical"
+      trovato = "logical",
+      peso = "numeric"
     ),
     methods = list(
-      searchNode = function(node) {
+      initialize = function(){
+        message("Le funzioni disponibili sono:")
+      },
+      
+      cercaNodo = function(node) {
         trovato <<- FALSE
         for (i in 1:length(nodo)) {
           if (node == nodo[[i]]) {
@@ -30,7 +35,7 @@ graficoRc <-
           message(x, " aggiunto")
         }
         else{
-          searchNode(x)
+          cercaNodo(x)
           if (!trovato) {
             nodo <<- c(nodo, x)
             message(x, " aggiunto")
@@ -38,17 +43,48 @@ graficoRc <-
         }
       },
       
-      searchArch = function(NodeP, NodeA) {
+      cambiaNodo = function(x, v){
+        if (length(nodo) < 1) {
+          message("Non ci sono nodi da cambiare")
+        }
+        else {
+          cercaNodo(x)
+          if (trovato){
+            for (i in 1:length(nodo)) {
+              if(nodo[[i]]==x){
+                nodo[[i]] <<- v
+                message("Nodo ", x, " sostituito con ", v)
+              }
+            }
+          }
+        }
+      },
+      
+      rimuoviNodo = function(x){
+        if (length(nodo) < 1) {
+          message("Non ci sono nodi da rimuovere")
+        }
+        else {
+          cercaNodo(x)
+          if (trovato){
+            nodo <<- nodo[ - which(nodo %in% x)]
+            message(x , " rimosso")
+          }
+        }
+      },
+      
+      cercaArco = function(NodeP, NodeA) {
         trovato <<- FALSE
         for (i in 1:nrow(arco)) {
           if (isTRUE(NodeP == arco[[i, "Partenza"]] &&
                      NodeA == arco[[i, "Arrivo"]])) {
             trovato <<- TRUE
+            peso <<- arco[[i, "peso"]]
             break
           }
         }
         if (trovato) {
-          message("Arco trovato")
+          message("Arco trovato: ", peso)
         }
         else {
           message("Arco non trovato")
@@ -56,7 +92,7 @@ graficoRc <-
       },
       
       addArco = function(x, nodoP, nodoA) {
-        searchArch(nodoP, nodoA)
+        cercaArco(nodoP, nodoA)
         if (length(arco) < 1) {
           newRow <-
             data.frame(peso = x,
@@ -67,7 +103,7 @@ graficoRc <-
           
         }
         else{
-          searchArch(nodoP, nodoA)
+          cercaArco(nodoP, nodoA)
           if (!trovato) {
             newRow <-
               data.frame(peso = x,
@@ -78,16 +114,48 @@ graficoRc <-
           }
         }
       },
+      cambiaArco = function(x, nodoP, nodoA){
+        if (length(nodo) < 1) {
+          message("Non ci sono archi da cambiare")
+        }
+        else {
+          cercaArco(nodoP, nodoA)
+          if (trovato){
+            for (i in 1:nrow(arco)) {
+              if((arco[[i, "Partenza"]]==nodoP) && (arco[[i, "Arrivo"]]==nodoA)){
+                arco[[i, "peso"]] <<- x
+                message("Peso arco sostituito con ", x)
+              }
+            }
+          }
+        }
+      },
+      
+      elencaVertici = function(){
+        vertici <- NULL
+        if (length(arco) < 1) {
+          message("Non ci sono vertici che hanno archi")
+        }
+        else{
+          for (i in 1:nrow(arco)) {
+            if((!is.null(arco[[i, "peso"]])) || (!(arco[[i, "peso"]])==0)){
+              vertici[[i]] <- arco[[i, "Arrivo"]]
+            }
+          }
+          message("Lista vertici che hanno un arco:")
+          print(vertici)
+        }
+      },
       
       buildMatrix = function() {
-        matrice <<- matrix(NULL, length(nodo), length(nodo))
+        matrice <<- matrix(0, length(nodo), length(nodo))
         rownames(matrice) <<- c(nodo)
         colnames(matrice) <<- c(nodo)
         for (j in 1:length(nodo)) {
           for (i in 1:length(nodo)) {
-            searchArch(nodo[[i]], nodo[[j]])
+            cercaArco(nodo[[i]], nodo[[j]])
             if(trovato){
-              matrice[[i,j]] <<- arco[[i, "peso"]]
+              matrice[[i,j]] <<- peso
             }
           }
         }
